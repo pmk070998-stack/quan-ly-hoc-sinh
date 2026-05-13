@@ -3,158 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mạnh Khang - Điểm Danh 100 Học Sinh</title>
+    <title>Mạnh Khang Digital - AI Attendance</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
-        :root { --primary: #00ffcc; --bg: #0a0a0a; --card: #161616; --danger: #ff4d4d; }
+        :root { --primary: #00ffcc; --bg: #0a0a0a; --card: #1c1c1c; --danger: #ff4d4d; --success: #2ecc71; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
-        .container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        .panel { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; }
-        .camera-box { position: relative; width: 100%; max-width: 400px; margin: 0 auto; border: 2px solid #333; border-radius: 10px; overflow: hidden; background: #000; min-height: 200px; }
-        video { width: 100%; display: block; background: #000; transform: scaleX(-1); } /* Soi gương cho tự nhiên */
+        .container { max-width: 900px; margin: 0 auto; }
+        .panel { background: var(--card); border-radius: 20px; padding: 25px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .status-bar { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 12px; color: #888; }
+        .camera-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; border: 3px solid #333; border-radius: 15px; overflow: hidden; background: #000; }
+        video { width: 100%; display: block; transform: scaleX(-1); }
+        canvas { position: absolute; top: 0; left: 0; transform: scaleX(-1); }
+        
+        .input-section { margin-top: 25px; text-align: center; }
         input[type="text"] { 
-            width: 100%; padding: 15px; background: #000; border: 2px solid var(--primary); 
-            color: var(--primary); border-radius: 8px; font-size: 20px; text-align: center; box-sizing: border-box;
+            width: 80%; padding: 18px; background: #000; border: 2px solid var(--primary); 
+            color: var(--primary); border-radius: 12px; font-size: 24px; text-align: center; font-weight: bold;
         }
-        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; display: none; }
-        .compare-box { text-align: center; }
-        .compare-box img { width: 100%; border-radius: 10px; border: 2px solid #444; height: 180px; object-fit: cover; background: #222; }
-        .compare-label { font-size: 11px; color: #888; margin-bottom: 5px; text-transform: uppercase; }
-        .present-list { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .present-list td { padding: 10px; border-bottom: 1px solid #222; font-size: 14px; }
-        .stt-badge { background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+        
+        .alert-box { margin-top: 15px; padding: 15px; border-radius: 10px; display: none; font-weight: bold; text-align: center; }
+        .alert-danger { background: rgba(255, 77, 77, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .alert-success { background: rgba(46, 204, 113, 0.2); color: var(--success); border: 1px solid var(--success); }
+
+        .log-table { width: 100%; margin-top: 30px; border-collapse: collapse; }
+        .log-table th { text-align: left; color: #555; padding: 10px; border-bottom: 2px solid #333; }
+        .log-table td { padding: 15px 10px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="panel">
-        <h2 style="text-align: center; color: var(--primary); margin: 0 0 15px;">MẠNH KHANG DIGITAL - ĐIỂM DANH</h2>
+        <div class="status-bar">
+            <span id="ai-status">Đang tải bộ não AI...</span>
+            <span id="device-info">Studio Mạnh Khang Professional</span>
+        </div>
         
-        <div class="camera-box">
+        <h2 style="text-align: center; color: var(--primary); margin: 0 0 20px; letter-spacing: 2px;">HỆ THỐNG ĐIỂM DANH AI</h2>
+        
+        <div class="camera-wrapper">
             <video id="video" autoplay playsinline muted></video>
-            <canvas id="canvas" style="display:none;"></canvas>
+            <div id="loading-overlay" style="position:absolute; color:white; font-size:12px;">Đang quét mặt...</div>
         </div>
 
-        <div style="margin-top: 20px;">
-            <input type="text" id="studentCode" placeholder="NHẬP SỐ THỨ TỰ (1-100)..." autofocus inputmode="numeric">
-        </div>
-
-        <div class="comparison-grid" id="compareGrid">
-            <div class="compare-box">
-                <div class="compare-label">Ảnh Gốc (Đã lưu)</div>
-                <img id="imgOriginal" src="">
-                <p id="studentName" style="color: var(--primary); font-weight: bold; margin: 5px 0;"></p>
-            </div>
-            <div class="compare-box">
-                <div class="compare-label">Ảnh Thực Tế</div>
-                <img id="imgCurrent" src="">
-                <p id="checkTime" style="margin: 5px 0; font-size: 13px;"></p>
-            </div>
+        <div class="input-section">
+            <input type="text" id="studentCode" placeholder="NHẬP SỐ BÁO DANH" autofocus inputmode="numeric">
+            <div id="msgBox" class="alert-box"></div>
         </div>
     </div>
 
-    <div class="panel">
-        <h3 style="margin-top: 0;">DANH SÁCH VÀO LỚP</h3>
-        <table class="present-list">
+    <div class="panel" style="margin-top: 20px;">
+        <h3>NHẬT KÝ ĐIỂM DANH TRỰC TUYẾN</h3>
+        <table class="log-table">
+            <thead>
+                <tr><th>STT</th><th>HỌ TÊN</th><th>THỜI GIAN</th><th>TRẠNG THÁI</th></tr>
+            </thead>
             <tbody id="logList"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // ANH KHANG SỬA TÊN Ở ĐÂY
-    const danhSachLop = [
-        "Phan Mạnh Khang", // 1
-        "Nguyễn Văn A", // 2
-        "Phạm Bá Gia Minh", // 3
-        "Lê Thị Bưởi", // 4
-        "Trần Văn D", // 5
-        "Nguyễn Văn F", // 6
-        "Lê Văn G", // 7
-        "Trần Thị H", // 8
-        "Phạm Văn I", // 9
-        "Hoàng Văn J", // 10
-        // ... (Tiếp tục đến 100)
-    ];
-
+    const danhSachLop = ["Phan Mạnh Khang", "Nguyễn Văn A", "Phạm Bá Gia Minh"]; // Anh thêm tiếp ở đây
     const students = {};
-    for (let i = 1; i <= 100; i++) {
-        let id = i.toString();
-        students[id] = {
-            name: danhSachLop[i-1] || "Học sinh số " + i,
-            avatar: localStorage.getItem('avatar_' + id) || "https://via.placeholder.com/200?text=CHUA+CO+ANH"
-        };
+    let isAiReady = false;
+
+    // 1. TẢI MODELS AI
+    async function loadAI() {
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+        isAiReady = true;
+        document.getElementById('ai-status').innerText = "AI SẴN SÀNG ✅";
+        startCamera();
     }
 
-    const video = document.getElementById('video');
+    async function startCamera() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+        document.getElementById('video').srcObject = stream;
+    }
+
+    // 2. HÀM ĐỌC TÊN (GIỌNG NÓI)
+    function speak(text) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'vi-VN';
+        window.speechSynthesis.speak(msg);
+    }
+
+    // 3. XỬ LÝ ĐIỂM DANH
     const input = document.getElementById('studentCode');
-    const compareGrid = document.getElementById('compareGrid');
-    let logs = [];
-
-    // HÀM ĐÁNH THỨC CAMERA CHO ĐIỆN THOẠI
-    async function initCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "user" }, 
-                audio: false 
-            });
-            video.srcObject = stream;
-        } catch (err) {
-            alert("Không thể mở camera. Anh Khang hãy vào Cài đặt -> Ứng dụng -> Cho phép Máy ảnh nhé!");
-        }
-    }
-
-    // Khởi động ngay khi mở web
-    initCamera();
-
-    input.addEventListener('change', function() {
+    input.addEventListener('change', async function() {
+        if (!isAiReady) return;
+        
         const code = this.value.trim();
-        if(!students[code]) {
-            alert("Số thứ tự không đúng!");
+        const studentName = danhSachLop[parseInt(code)-1] || "Học sinh " + code;
+        const msgBox = document.getElementById('msgBox');
+        
+        // Chụp ảnh từ Video
+        const video = document.getElementById('video');
+        const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+
+        if (!detections) {
+            showMsg("Không thấy mặt học sinh!", "danger");
             this.value = '';
             return;
         }
 
-        const s = students[code];
-        const now = new Date().toLocaleTimeString();
+        // Lấy dữ liệu khuôn mặt cũ (nếu có)
+        const savedDescriptor = localStorage.getItem('face_' + code);
 
-        // Chụp ảnh thực tế
-        const canvas = document.getElementById('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.translate(canvas.width, 0); // Lật ảnh lại cho đúng thực tế
-        ctx.scale(-1, 1);
-        ctx.drawImage(video, 0, 0);
-        const capturedPhoto = canvas.toDataURL('image/jpeg');
+        if (!savedDescriptor) {
+            // ĐĂNG KÝ LẦN ĐẦU
+            localStorage.setItem('face_' + code, JSON.stringify(Array.from(detections.descriptor)));
+            showMsg("Đăng ký mặt thành công: " + studentName, "success");
+            speak("Chào mừng " + studentName + " đã đăng ký");
+        } else {
+            // SO SÁNH KHUÔN MẶT
+            const oldDescriptor = new Float32Array(JSON.parse(savedDescriptor));
+            const distance = faceapi.euclideanDistance(detections.descriptor, oldDescriptor);
 
-        // TỰ ĐỘNG ĐĂNG KÝ NẾU LÀ LẦN ĐẦU
-        if (s.avatar.includes("placeholder.com")) {
-            localStorage.setItem('avatar_' + code, capturedPhoto);
-            s.avatar = capturedPhoto;
-            alert("Đã lưu khuôn mặt đăng ký cho: " + s.name);
+            if (distance < 0.5) { // Ngưỡng chính xác (càng nhỏ càng khó)
+                showMsg("Điểm danh thành công: " + studentName, "success");
+                speak("Chào " + studentName);
+                addLog(code, studentName, "Hợp lệ ✅");
+            } else {
+                showMsg("CẢNH BÁO: SAI KHUÔN MẶT!", "danger");
+                speak("Cảnh báo, sai khuôn mặt học sinh");
+                addLog(code, studentName, "SAI MẶT ❌", true);
+            }
         }
-
-        compareGrid.style.display = 'grid';
-        document.getElementById('imgOriginal').src = s.avatar;
-        document.getElementById('imgCurrent').src = capturedPhoto;
-        document.getElementById('studentName').innerText = s.name;
-        document.getElementById('checkTime').innerText = "Vào lúc: " + now;
-
-        logs.unshift({ stt: code, name: s.name, time: now });
-        updateLog();
-        this.value = ''; 
+        this.value = '';
     });
 
-    function updateLog() {
-        const list = document.getElementById('logList');
-        list.innerHTML = logs.map(l => `
-            <tr>
-                <td><span class="stt-badge">${l.stt}</span> <b>${l.name}</b></td>
-                <td style="text-align:right; color:#888;">${l.time}</td>
-            </tr>
-        `).join('');
+    function showMsg(txt, type) {
+        const box = document.getElementById('msgBox');
+        box.innerText = txt;
+        box.className = "alert-box alert-" + type;
+        box.style.display = "block";
     }
+
+    function addLog(stt, name, status, isDanger = false) {
+        const list = document.getElementById('logList');
+        const time = new Date().toLocaleTimeString();
+        const row = `<tr style="${isDanger ? 'color:var(--danger)' : ''}">
+            <td>${stt}</td><td><b>${name}</b></td><td>${time}</td><td>${status}</td>
+        </tr>`;
+        list.innerHTML = row + list.innerHTML;
+    }
+
+    loadAI();
 </script>
 </body>
 </html>
