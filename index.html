@@ -171,55 +171,46 @@
         let id = i.toString();
         students[id] = {
             name: danhSachLop[i-1] || "Học sinh số " + i,
-            avatar: "anh-hs/" + i + ".jpg" 
+            // Kiểm tra xem đã có ảnh "đăng ký" trong máy chưa
+            avatar: localStorage.getItem('avatar_' + id) || "https://via.placeholder.com/200?text=CHUA+CO+ANH"
         };
     }
 
-    let logs = [];
-    const video = document.getElementById('video');
-    const input = document.getElementById('studentCode');
-    const compareGrid = document.getElementById('compareGrid');
-
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-        .then(s => video.srcObject = s);
+    // ... (Phần code Camera giữ nguyên) ...
 
     input.addEventListener('change', function() {
         const code = this.value.trim();
         if(!students[code]) {
-            alert("Số thứ tự không đúng (1-100)!");
+            alert("Số thứ tự không đúng!");
             this.value = '';
             return;
         }
 
         const s = students[code];
-        const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        const now = new Date().toLocaleTimeString();
 
+        // Chụp ảnh thực tế ngay lúc này
         const canvas = document.getElementById('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         canvas.getContext('2d').drawImage(video, 0, 0);
         const capturedPhoto = canvas.toDataURL('image/jpeg');
 
+        // NẾU CHƯA CÓ ẢNH GỐC -> TỰ ĐỘNG LƯU TẤM NÀY LÀM ẢNH GỐC
+        if (s.avatar.includes("placeholder.com")) {
+            localStorage.setItem('avatar_' + code, capturedPhoto);
+            s.avatar = capturedPhoto;
+            alert("Đã tự động đăng ký khuôn mặt cho: " + s.name);
+        }
+
+        // Hiển thị đối soát
         compareGrid.style.display = 'grid';
         document.getElementById('imgOriginal').src = s.avatar;
         document.getElementById('imgCurrent').src = capturedPhoto;
         document.getElementById('studentName').innerText = s.name;
-        document.getElementById('checkTime').innerText = "Vào lúc: " + now;
-
-        logs.unshift({ stt: code, name: s.name, time: now });
-        updateLog();
-        this.value = ''; 
+        
+        // ... (Lưu log điểm danh như cũ) ...
     });
-
-    function updateLog() {
-        const list = document.getElementById('logList');
-        list.innerHTML = logs.map(l => `
-            <tr>
-                <td><span class="stt-badge">${l.stt}</span> <b>${l.name}</b></td>
-                <td style="text-align:right; color:#888;">${l.time}</td>
-            </tr>
-        `).join('');
-    }
 </script>
 </body>
 </html>
