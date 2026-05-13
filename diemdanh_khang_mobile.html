@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mạnh Khang - Điểm Danh 100 Học Sinh</title>
+    <style>
+        :root { --primary: #00ffcc; --bg: #0a0a0a; --card: #161616; --danger: #ff4d4d; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        .panel { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; }
+        .camera-box { position: relative; width: 100%; max-width: 400px; margin: 0 auto; border: 2px solid #333; border-radius: 10px; overflow: hidden; }
+        video { width: 100%; display: block; background: #000; }
+        input[type="text"] { 
+            width: 100%; padding: 15px; background: #000; border: 2px solid var(--primary); 
+            color: var(--primary); border-radius: 8px; font-size: 20px; text-align: center; box-sizing: border-box;
+        }
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; display: none; }
+        .compare-box { text-align: center; }
+        .compare-box img { width: 100%; border-radius: 10px; border: 2px solid #444; height: 180px; object-fit: cover; background: #222; }
+        .compare-label { font-size: 11px; color: #888; margin-bottom: 5px; text-transform: uppercase; }
+        .present-list { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .present-list td { padding: 10px; border-bottom: 1px solid #222; font-size: 14px; }
+        .stt-badge { background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="panel">
+        <h2 style="text-align: center; color: var(--primary); margin: 0 0 15px;">MẠNH KHANG DIGITAL - ĐIỂM DANH</h2>
+        
+        <div class="camera-box">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <input type="text" id="studentCode" placeholder="NHẬP SỐ THỨ TỰ (1-100)..." autofocus>
+        </div>
+
+        <div class="comparison-grid" id="compareGrid">
+            <div class="compare-box">
+                <div class="compare-label">Ảnh Gốc (Studio)</div>
+                <img id="imgOriginal" src="">
+                <p id="studentName" style="color: var(--primary); font-weight: bold; margin: 5px 0;"></p>
+            </div>
+            <div class="compare-box">
+                <div class="compare-label">Ảnh Chụp Tại Lớp</div>
+                <img id="imgCurrent" src="">
+                <p id="checkTime" style="margin: 5px 0; font-size: 13px;"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-top: 0;">DANH SÁCH VÀO LỚP</h3>
+        <table class="present-list">
+            <tbody id="logList"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ANH KHANG SỬA TÊN Ở ĐÂY - MỖI DÒNG LÀ MỘT HỌC SINH
+    const danhSachLop = [
+        "Phan Mạnh Khang", // 1
+        "Nguyễn Văn A", // 2
+        "Phạm Bá Gia Minh", // 3
+        "Lê Thị Bưởi", // 4
+        "Trần Văn D", // 5
+        "Nguyễn Văn F", // 6
+        "Lê Văn G", // 7
+        "Trần Thị H", // 8
+        "Phạm Văn I", // 9
+        "Hoàng Văn J", // 10
+        "Đỗ Thị K", // 11
+        "Bùi Văn L", // 12
+        "Vũ Thị M", // 13
+        "Phan Văn N", // 14
+        "Lê Thị O", // 15
+        "Nguyễn Văn P", // 16
+        "Trần Văn Q", // 17
+        "Lê Văn R", // 18
+        "Phạm Thị S", // 19
+        "Vũ Văn T", // 20
+        "Đặng Văn U", // 21
+        "Bùi Thị V", // 22
+        "Hoàng Văn W", // 23
+        "Trần Văn X", // 24
+        "Lê Thị Y", // 25
+        "Phạm Văn Z", // 26
+        "Nguyễn Văn AA", // 27
+        "Lê Văn BB", // 28
+        "Trần Thị CC", // 29
+        "Vũ Văn DD", // 30
+        "Phan Thị EE", // 31
+        "Đỗ Văn FF", // 32
+        "Bùi Văn GG", // 33
+        "Hoàng Thị HH", // 34
+        "Trần Văn II", // 35
+        "Lê Văn JJ", // 36
+        "Phạm Thị KK", // 37
+        "Vũ Văn LL", // 38
+        "Nguyễn Văn MM", // 39
+        "Đặng Thị NN", // 40
+        "Bùi Văn OO", // 41
+        "Hoàng Văn PP", // 42
+        "Trần Thị QQ", // 43
+        "Lê Văn RR", // 44
+        "Phan Văn SS", // 45
+        "Vũ Thị TT", // 46
+        "Đỗ Văn UU", // 47
+        "Bùi Văn VV", // 48
+        "Nguyễn Thị WW", // 49
+        "Trần Văn XX", // 50
+        "Lê Văn YY", // 51
+        "Phạm Văn ZZ", // 52
+        "Hoàng Thị AAA", // 53
+        "Phan Văn BBB", // 54
+        "Vũ Văn CCC", // 55
+        "Đặng Thị DDD", // 56
+        "Bùi Văn EEE", // 57
+        "Trần Văn FFF", // 58
+        "Lê Thị GGG", // 59
+        "Nguyễn Văn HHH", // 60
+        "Phạm Văn III", // 61
+        "Hoàng Thị JJJ", // 62
+        "Phan Văn KKK", // 63
+        "Vũ Văn LLL", // 64
+        "Đỗ Thị MMM", // 65
+        "Bùi Văn NNN", // 66
+        "Trần Văn OOO", // 67
+        "Lê Thị PPP", // 68
+        "Nguyễn Văn QQQ", // 69
+        "Phạm Văn RRR", // 70
+        "Hoàng Thị SSS", // 71
+        "Phan Văn TTT", // 72
+        "Vũ Văn UUU", // 73
+        "Đặng Thị VVV", // 74
+        "Bùi Văn WWW", // 75
+        "Trần Văn XXX", // 76
+        "Lê Thị YYY", // 77
+        "Nguyễn Văn ZZZ", // 78
+        "Phạm Văn A1", // 79
+        "Hoàng Thị B1", // 80
+        "Phan Văn C1", // 81
+        "Vũ Văn D1", // 82
+        "Đỗ Thị E1", // 83
+        "Bùi Văn F1", // 84
+        "Trần Văn G1", // 85
+        "Lê Thị H1", // 86
+        "Nguyễn Văn I1", // 87
+        "Phạm Văn J1", // 88
+        "Hoàng Thị K1", // 89
+        "Phan Văn L1", // 90
+        "Vũ Văn M1", // 91
+        "Đặng Thị N1", // 92
+        "Bùi Văn O1", // 93
+        "Trần Văn P1", // 94
+        "Lê Thị Q1", // 95
+        "Nguyễn Văn R1", // 96
+        "Phạm Văn S1", // 97
+        "Hoàng Thị T1", // 98
+        "Phan Văn U1", // 99
+        "Học sinh cuối cùng" // 100
+    ];
+
+    const students = {};
+    for (let i = 1; i <= 100; i++) {
+        let id = i.toString();
+        students[id] = {
+            name: danhSachLop[i-1] || "Học sinh số " + i,
+            avatar: "anh-hs/" + i + ".jpg" 
+        };
+    }
+
+    let logs = [];
+    const video = document.getElementById('video');
+    const input = document.getElementById('studentCode');
+    const compareGrid = document.getElementById('compareGrid');
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(s => video.srcObject = s);
+
+    input.addEventListener('change', function() {
+        const code = this.value.trim();
+        if(!students[code]) {
+            alert("Số thứ tự không đúng (1-100)!");
+            this.value = '';
+            return;
+        }
+
+        const s = students[code];
+        const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+
+        const canvas = document.getElementById('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const capturedPhoto = canvas.toDataURL('image/jpeg');
+
+        compareGrid.style.display = 'grid';
+        document.getElementById('imgOriginal').src = s.avatar;
+        document.getElementById('imgCurrent').src = capturedPhoto;
+        document.getElementById('studentName').innerText = s.name;
+        document.getElementById('checkTime').innerText = "Vào lúc: " + now;
+
+        logs.unshift({ stt: code, name: s.name, time: now });
+        updateLog();
+        this.value = ''; 
+    });
+
+    function updateLog() {
+        const list = document.getElementById('logList');
+        list.innerHTML = logs.map(l => `
+            <tr>
+                <td><span class="stt-badge">${l.stt}</span> <b>${l.name}</b></td>
+                <td style="text-align:right; color:#888;">${l.time}</td>
+            </tr>
+        `).join('');
+    }
+</script>
+</body>
+</html>
