@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mạnh Khang Digital - AI Pro 200</title>
-    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+    <title>Mạnh Khang Digital - AI Pro 150</title>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
     <style>
         :root { --primary: #00ffcc; --bg: #0a0a0a; --card: #1c1c1c; --danger: #ff4d4d; --success: #2ecc71; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
         .container { max-width: 900px; margin: 0 auto; }
-        .panel { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #333; margin-bottom: 20px; }
+        .panel { background: var(--card); border-radius: 20px; padding: 20px; border: 1px solid #333; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .camera-wrapper { position: relative; width: 100%; max-width: 450px; margin: 0 auto; border: 3px solid #333; border-radius: 15px; overflow: hidden; background: #000; }
         video { width: 100%; display: block; transform: scaleX(-1); }
         .input-section { margin-top: 20px; text-align: center; }
         input[type="text"] { width: 90%; padding: 15px; background: #000; border: 2px solid var(--primary); color: var(--primary); border-radius: 12px; font-size: 24px; text-align: center; font-weight: bold; outline: none; }
-        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .btn-delete { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .btn-delete { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
         .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .log-table td { padding: 12px 10px; border-bottom: 1px solid #222; }
-        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
-        .bg-success { background: rgba(46, 204, 113, 0.2); color: var(--success); }
-        .bg-danger { background: rgba(255, 77, 77, 0.2); color: var(--danger); }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .bg-success { background: rgba(46, 204, 113, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .bg-danger { background: rgba(255, 77, 77, 0.2); color: var(--danger); border: 1px solid var(--danger); }
         #ai-status { font-size: 12px; color: #888; margin-top: 10px; display: block; }
     </style>
 </head>
@@ -28,13 +28,13 @@
 
 <div class="container">
     <div class="panel" style="text-align: center;">
-        <h2 style="color: var(--primary); margin: 0 0 15px;">MẠNH KHANG DIGITAL AI</h2>
+        <h2 style="color: var(--primary); margin: 0 0 15px; letter-spacing: 1px;">MẠNH KHANG DIGITAL AI</h2>
         <div class="camera-wrapper">
             <video id="video" autoplay playsinline muted></video>
         </div>
         <div class="input-section">
-            <input type="text" id="studentCode" placeholder="NHẬP SỐ BÁO DANH" autofocus inputmode="numeric">
-            <span id="ai-status">🤖 Đang tải bộ não AI...</span>
+            <input type="text" id="studentCode" placeholder="NHẬP SỐ THỨ TỰ (1-150)" autofocus inputmode="numeric">
+            <span id="ai-status">🤖 Đang kết nối bộ não AI...</span>
         </div>
     </div>
 
@@ -43,39 +43,74 @@
             <h3 style="margin:0">NHẬT KÝ ĐIỂM DANH</h3>
             <button class="btn-delete" onclick="clearLogs()">XÓA DỮ LIỆU</button>
         </div>
-        <table class="log-table">
-            <tbody id="logList"></tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table class="log-table">
+                <tbody id="logList"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    // TẠO NHANH 200 TÊN
-    const danhSachLop = ["Phan Mạnh Khang", "Học sinh số 2", "Phạm Bá Gia Minh"];
-    for (let i = 4; i <= 200; i++) danhSachLop.push("Học sinh số " + i);
+    // DANH SÁCH 150 NGƯỜI (Tên trước, Số sau)
+    // Anh Khang sửa tên bên trong dấu ngoặc kép này nhé
+    const danhSachLop = [
+        "Phan Mạnh Khang 1", "Học sinh 2", "Học sinh 3", "Học sinh 4", "Học sinh 5",
+        "Học sinh 6", "Học sinh 7", "Học sinh 8", "Học sinh 9", "Học sinh 10",
+        "Học sinh 11", "Học sinh 12", "Học sinh 13", "Học sinh 14", "Học sinh 15",
+        "Học sinh 16", "Học sinh 17", "Học sinh 18", "Học sinh 19", "Học sinh 20",
+        "Học sinh 21", "Học sinh 22", "Học sinh 23", "Học sinh 24", "Học sinh 25",
+        "Học sinh 26", "Học sinh 27", "Học sinh 28", "Học sinh 29", "Học sinh 30",
+        "Học sinh 31", "Học sinh 32", "Học sinh 33", "Học sinh 34", "Học sinh 35",
+        "Học sinh 36", "Học sinh 37", "Học sinh 38", "Học sinh 39", "Học sinh 40",
+        "Học sinh 41", "Học sinh 42", "Học sinh 43", "Học sinh 44", "Học sinh 45",
+        "Học sinh 46", "Học sinh 47", "Học sinh 48", "Học sinh 49", "Học sinh 50",
+        "Học sinh 51", "Học sinh 52", "Học sinh 53", "Học sinh 54", "Học sinh 55",
+        "Học sinh 56", "Học sinh 57", "Học sinh 58", "Học sinh 59", "Học sinh 60",
+        "Học sinh 61", "Học sinh 62", "Học sinh 63", "Học sinh 64", "Học sinh 65",
+        "Học sinh 66", "Học sinh 67", "Học sinh 68", "Học sinh 69", "Học sinh 70",
+        "Học sinh 71", "Học sinh 72", "Học sinh 73", "Học sinh 74", "Học sinh 75",
+        "Học sinh 76", "Học sinh 77", "Học sinh 78", "Học sinh 79", "Học sinh 80",
+        "Học sinh 81", "Học sinh 82", "Học sinh 83", "Học sinh 84", "Học sinh 85",
+        "Học sinh 86", "Học sinh 87", "Học sinh 88", "Học sinh 89", "Học sinh 90",
+        "Học sinh 91", "Học sinh 92", "Học sinh 93", "Học sinh 94", "Học sinh 95",
+        "Học sinh 96", "Học sinh 97", "Học sinh 98", "Học sinh 99", "Học sinh 100",
+        "Học sinh 101", "Học sinh 102", "Học sinh 103", "Học sinh 104", "Học sinh 105",
+        "Học sinh 106", "Học sinh 107", "Học sinh 108", "Học sinh 109", "Học sinh 110",
+        "Học sinh 111", "Học sinh 112", "Học sinh 113", "Học sinh 114", "Học sinh 115",
+        "Học sinh 116", "Học sinh 117", "Học sinh 118", "Học sinh 119", "Học sinh 120",
+        "Học sinh 121", "Học sinh 122", "Học sinh 123", "Học sinh 124", "Học sinh 125",
+        "Học sinh 126", "Học sinh 127", "Học sinh 128", "Học sinh 129", "Học sinh 130",
+        "Học sinh 131", "Học sinh 132", "Học sinh 133", "Học sinh 134", "Học sinh 135",
+        "Học sinh 136", "Học sinh 137", "Học sinh 138", "Học sinh 139", "Học sinh 140",
+        "Học sinh 141", "Học sinh 142", "Học sinh 143", "Học sinh 144", "Học sinh 145",
+        "Học sinh 146", "Học sinh 147", "Học sinh 148", "Học sinh 149", "Học sinh 150"
+    ];
 
     let isAiReady = false;
 
     async function initAI() {
-        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+        const MODEL_URL = 'https://raw.githubusercontent.com/vladmandic/face-api/master/model/';
         try {
-            // Tải bộ não AI
             await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
             await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
             await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-            
             isAiReady = true;
             document.getElementById('ai-status').innerText = "✅ AI ĐÃ SẴN SÀNG";
             startCamera();
             renderLogs();
         } catch (e) {
-            document.getElementById('ai-status').innerHTML = "<b style='color:red'>❌ LỖI: Hãy dùng link HTTPS (GitHub) để chạy!</b>";
+            document.getElementById('ai-status').innerHTML = "<b style='color:red'>❌ Lỗi AI. Vui lòng kiểm tra HTTPS!</b>";
         }
     }
 
     async function startCamera() {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-        document.getElementById('video').srcObject = stream;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            document.getElementById('video').srcObject = stream;
+        } catch (err) {
+            alert("Lỗi Camera: Anh Khang hãy cấp quyền camera nhé!");
+        }
     }
 
     function speak(text) {
@@ -85,18 +120,18 @@
     }
 
     function saveLog(stt, name, status, type) {
-        let logs = JSON.parse(localStorage.getItem('khang_logs_v2') || '[]');
+        let logs = JSON.parse(localStorage.getItem('khang_final_logs') || '[]');
         const now = new Date();
         logs.unshift({
             time: now.toLocaleDateString('vi-VN') + " " + now.toLocaleTimeString('vi-VN'),
-            stt: stt, name: name, status: status, type: type
+            name: name, status: status, type: type
         });
-        localStorage.setItem('khang_logs_v2', JSON.stringify(logs.slice(0, 100)));
+        localStorage.setItem('khang_final_logs', JSON.stringify(logs.slice(0, 100)));
         renderLogs();
     }
 
     function renderLogs() {
-        const logs = JSON.parse(localStorage.getItem('khang_logs_v2') || '[]');
+        const logs = JSON.parse(localStorage.getItem('khang_final_logs') || '[]');
         document.getElementById('logList').innerHTML = logs.map(l => `
             <tr>
                 <td>${l.time}</td>
@@ -108,7 +143,7 @@
 
     function clearLogs() {
         if(confirm("Xóa lịch sử không anh Khang?")) {
-            localStorage.setItem('khang_logs_v2', '[]');
+            localStorage.setItem('khang_final_logs', '[]');
             renderLogs();
         }
     }
@@ -116,9 +151,16 @@
     document.getElementById('studentCode').addEventListener('change', async function() {
         if (!isAiReady) return;
         const code = this.value.trim();
-        const name = danhSachLop[parseInt(code)-1] || "Học sinh " + code;
-        const video = document.getElementById('video');
+        const index = parseInt(code) - 1;
         
+        if (index < 0 || index >= danhSachLop.length) {
+            alert("Số không hợp lệ (1-150)!");
+            this.value = '';
+            return;
+        }
+
+        const name = danhSachLop[index];
+        const video = document.getElementById('video');
         const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
 
         if (!detection) {
@@ -128,10 +170,10 @@
             return;
         }
 
-        const savedFace = localStorage.getItem('face_data_' + code);
+        const savedFace = localStorage.getItem('khang_face_final_' + code);
 
         if (!savedFace) {
-            localStorage.setItem('face_data_' + code, JSON.stringify(Array.from(detection.descriptor)));
+            localStorage.setItem('khang_face_final_' + code, JSON.stringify(Array.from(detection.descriptor)));
             saveLog(code, name, "ĐĂNG KÝ MỚI", "success");
             speak("Đã đăng ký cho " + name);
         } else {
